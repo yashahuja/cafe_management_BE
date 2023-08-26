@@ -245,6 +245,7 @@ app.get('/getLatestAirQualityReadings', auth.checkIfAuthenticated, async (req, r
         });
 
         // Respond with the latest readings for each unique set of coordinates
+        res.setHeader('Access-Control-Allow-Origin', '*');
         res.status(200).send({errorCode: "200", data: latestReadings });
     } catch (error) {
         // console.error('Error retrieving readings: ', error);
@@ -274,7 +275,7 @@ app.get('/getUserRole', auth.checkIfAuthenticated, async (req, res) => {
         }
 
         const userRoleData = querySnapshot.docs[0].data();
-
+        res.setHeader('Access-Control-Allow-Origin', '*');
         return res.status(200).json({ role: userRoleData.role });
     } catch (error) {
         // console.error('Error getting user role:', error);
