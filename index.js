@@ -73,7 +73,7 @@ app.get("/airqualitydata", auth.checkIfAuthenticated, async (req, res) => {
     const reqData = req.headers;
     const { lat, long } = reqData;
     // Make request
-    axios.get(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${long}&appid=${process.env.OPEN_WEATHER_APP_ID}`)
+    axios.get(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${long}&appid=${process.env.OPEN_WEATHER_APP_ID || 'bdb34a14b4eb963b612d01b5949374cd'}`)
         .then(airRes => {
             // console.log(airRes.data);
             res.send(airRes.data)
@@ -381,5 +381,5 @@ app.get('/getChartValues', async (req, res) => {
 });
 
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 4000
 app.listen(PORT, () => console.log(`Up and running ${PORT}`))
