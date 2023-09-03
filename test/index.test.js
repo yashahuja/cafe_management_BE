@@ -20,8 +20,6 @@ describe('GET /getChartValues', function () {
 
     firestoreStub = sinon.stub(dbConfig.admin.firestore().collection('AirQualityData'), 'where')
       .onCall(0).returnsThis()
-      // .onCall(1).returnsThis()
-      // .onCall(2).returnsThis()
       .onCall(1).returns({ get: () => Promise.resolve(mockQuerySnapshot) });
   });
 
@@ -38,7 +36,6 @@ describe('GET /getChartValues', function () {
       .set('lon', '-74');
 
     expect(res.status).to.equal(200);
-    // expect(res.body).to.deep.equal([mockQuerySnapshot.docs[0].data()]);
     expect(typeof res.body).to.equal(typeof []);
   }).timeout(3500);
 });
@@ -72,9 +69,6 @@ describe('POST /update', () => {
         })
       }
     };
-
-    // Replace the actual dbConfig in your code with the stubbed version
-    // You would typically use proxyquire or rewire for this
   });
 
   afterEach(() => {
