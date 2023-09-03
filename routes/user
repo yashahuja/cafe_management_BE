@@ -1,0 +1,77 @@
+const express = require('express');
+const router = express.Router();
+const dbConfig = require('../config')
+const auth = require('../services/authentication')
+
+router.post('/update', async (req, res) => {
+    try {
+
+        const { name, email, password, phoneNumber, role, uid } = req.body.body;
+
+        //updating user name and phone number
+        const userRecord = await dbConfig.admin.auth().updateUser(uid, {
+            displayName: name,
+            phoneNumber: phoneNumber
+        });
+
+        // Store the user role and UUID in the Firestore collection "UserRole"
+        const userRoleData = {
+            role: role,
+            uid: userRecord.uid,
+        };
+
+        await dbConfig.admin.firestore().collection('UserRole').add(userRoleData);
+
+        return res.status(200).send({
+            status: "Success",
+            errorCode: 200,
+            message: "User sign-up successful.",
+            data: userRecord
+        });
+    } catch (error) {
+        // console.error('Error during sign-up:', error);
+        if (error.message.includes("phone number")) {
+            res.status(200).json({
+                message: 'Please enter your phone number with the country code (eg +353).',
+                errorCode: 500
+            });
+        } else {
+            res.status(200).json({
+                message: error.message,
+                errorCode: 500
+            });
+        }
+    }
+});
+
+router.get('/role', auth.checkIfAuthenticated, async (req, res) => {
+    try {
+        const uid = req.headers.uid; // taking the UID in the "uid" header
+
+        // Retrieve the role from the Firestore collection "UserRole" based on the UID
+        const querySnapshot = await dbConfig.admin.firestore()
+            .collection('UserRole')
+            .where('uid', '==', uid)
+            .get();
+
+        if (querySnapshot.empty) {
+            return res.status(200).json({
+                errorCode: 404,
+                message: 'User role not found'
+            });
+        }
+
+        const userRoleData = querySnapshot.docs[0].data();
+        // res.setHeader('Access-Control-Allow-Origin', '*');
+        // res.header("Access-Control-Allow-Origin", "*");
+        // res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+        // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
+        return res.status(200).json({ role: userRoleData.role });
+    } catch (error) {
+        // console.error('Error getting user role:', error);
+        res.status(200).json({ errorCode: 500, message: error.message });
+    }
+});
+
+
+module.exports = router;
